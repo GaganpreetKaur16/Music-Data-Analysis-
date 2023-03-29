@@ -80,7 +80,45 @@ LIMIT 5;
 Which city they belong to ? */
 # lets find out how many genres are there
 
-SELECT * FROM genre;
+SELECT COUNT(*) FROM genre;
+# There are total 25 genres 
+
+# lets use joins to join the tables genre with the invoice information 
+
+# lets create a view named as cust that stores the joined data 
+
+CREATE VIEW cust AS 
+SELECT CONCAT(customer.first_name,' ',customer.last_name) AS customer_name, 
+		genre.name AS genre_name
+FROM customer 
+JOIN invoice ON
+customer.customer_id = invoice.customer_id
+JOIN invoice_line ON
+invoice.invoice_id = invoice_line.invoice_id 
+JOIN track ON 
+invoice_line.track_id = track.track_id
+JOIN genre ON
+track.genre_id = genre.genre_id
+GROUP BY customer_name, genre_name
+ORDER BY customer_name ASC;
+
+# lets see the data 
+SELECT * FROM cust;
+
+# lets use with to find out the customers who have bought music from more that 10 genres 
+WITH cust1 AS 
+(
+SELECT 
+		customer_name,
+        genre_name,
+        ROW_NUMBER() OVER( PARTITION BY customer_name ORDER by genre_name) AS num
+FROM cust)
+SELECT 
+	customer_name, COUNT(*) as number_of_genres
+FROM cust1
+GROUP BY customer_name
+ORDER BY number_of_genres DESC ;
+
 
 # lets use joins to join the tables genre with the invoice information 
 
