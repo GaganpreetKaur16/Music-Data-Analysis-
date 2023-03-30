@@ -3,7 +3,7 @@ Data Analysis on Music Store Data Using SQL
 
 
 
-MUSIC STORE DATA ANALYSIS USING SQL
+
 
  
 
