@@ -7,7 +7,8 @@
 SHOW TABLES;
 
 # MUSIC ANALYSIS 
-/* ---------------------------------------------------------------------------------------------*/
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: How many artists, albums, tracks and genres are there? */
 
 SELECT COUNT(*) FROM artist;
@@ -22,7 +23,10 @@ SELECT COUNT(*) FROM track;
 SELECT COUNT(*) FROM genre;
 # There are total 25 genres.
 
-/* ----------------------------------------------------------------------------------------------------*/
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Top 10 countries with most number of invoices? */
 
 SELECT billing_country, COUNT(invoice_id) as no_of_invoices
@@ -30,8 +34,11 @@ SELECT billing_country, COUNT(invoice_id) as no_of_invoices
     GROUP BY billing_country
     ORDER BY no_of_invoices DESC
     LIMIT 10;
-    
-/* -------------------------------------------------------------------------------------------- */    
+
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------   
 /* Q: Top 10 Values of invoices and which country they belong to */
 
 # lets see the table 
@@ -42,7 +49,11 @@ FROM invoice
 ORDER BY total DESC 
 LIMIT 10;
 
-/* ----------------------------------------------------------------------------------------- */
+
+
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Top 10 Customers who spent most , the city and country to which they belong to */
 # using joins
 SELECT CONCAT(c.first_name, ' ', c.last_name) AS cus_name, c.country, 
@@ -54,7 +65,12 @@ GROUP BY cus_name
 ORDER BY total_spent DESC
 LIMIT 10;
 
-# ----------------------------------------------------------------------------------
+
+
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Which genre is most popular in Canada? 
 Lets find top 5 genres of which tracks are bought the most by the customers in Canada
  by using joins */
@@ -75,7 +91,11 @@ ORDER BY invoice.total DESC
 LIMIT 5;
 
 
-# ------------------------------------------------------------------------------------
+
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q. Find out if there are any customers who bought music from every genre.
 Which city they belong to ? */
 # lets find out how many genres are there
@@ -84,7 +104,6 @@ SELECT COUNT(*) FROM genre;
 # There are total 25 genres 
 
 # lets use joins to join the tables genre with the invoice information 
-
 # lets create a view named as cust that stores the joined data 
 
 CREATE VIEW cust AS 
@@ -105,7 +124,8 @@ ORDER BY customer_name ASC;
 # lets see the data 
 SELECT * FROM cust;
 
-# lets use with to find out the customers who have bought music from more that 10 genres 
+# lets use this view to find out the customers who have bought music from more that 10 genres 
+
 WITH cust1 AS 
 (
 SELECT 
@@ -117,35 +137,25 @@ SELECT
 	customer_name, COUNT(*) as number_of_genres
 FROM cust1
 GROUP BY customer_name
-ORDER BY number_of_genres DESC ;
+ORDER BY number_of_genres DESC 
+LIMIT 10;
 
 
-# lets use joins to join the tables genre with the invoice information 
 
 
-/*SELECT CONCAT(customer.first_name,' ',customer.last_name), genre.name 
-FROM customer 
-JOIN invoice ON
-customer.customer_id = invoice.customer_id
-JOIN invoice_line ON
-invoice.invoice_id = invoice_line.invoice_id 
-JOIN track ON 
-invoice_line.track_id = track.track_id
-JOIN genre ON
-track.genre_id = genre.genre_id
-WHERE name in ( SELECT name FROM genre);
-*/
-
-# -----------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
 /*Q: Find the name & ID of the artists who do not have albums ? */
+
+
+# using a sub query 
 
 SELECT artist_id, name 
 FROM artist 
 WHERE artist_id NOT IN 
 (SELECT artist_id FROM album);
 
-# or
-
+# or using a join 
 
 SELECT artist.name,
        artist.artist_id,
@@ -163,7 +173,9 @@ WHERE artist_id NOT IN
 
 # There are total 71 artists who do not have any albums
 
-#-------------------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q. Are there any customers who have a different city listed in their billing address
 compared to the address in their information table 
 */
@@ -178,7 +190,10 @@ WHERE city != billing_city;
 # there are not any customers who have mentioned a different city in their billing address
 # compared to the city in their address 
 
-#---------------------------------------------------------------------------------------
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Find the list of the names of the managers and the employees who reports to them.
 */
 
@@ -189,12 +204,14 @@ INNER JOIN Employee M
 ON 
 E.reports_to = M.employee_id;
 
-#-------------------------------------------------------------------------------------------
-/* Q: Find out the most popular genre for each country. 
-Lets say that the most popular genre would be the 
-genre with the highest amount of purchases. 
-Lets write a query that returns the counrty along with the top genre.
 
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+/* Q: Find out the most popular genre for each country. 
+Lets say that the most popular genre would be the genre with the highest amount of purchases. 
+
+Lets write a query that returns the counrty along with the top genre.
 ( For the countries where the maximum number of purchases is shared, reutun all the genres)
 */
 
@@ -219,7 +236,9 @@ WHERE ranking <= 1
 ;
 
 
-#--------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q. Find the total number of Invoices for each customer along with the customer's full name,
 city and email. */
 
@@ -235,7 +254,9 @@ SELECT CONCAT(customer.first_name, ' ', customer.last_name) AS customer_name,
  ORDER BY total_invoices DESC;
  
  
- # ----------------------------------------------------------------------------------------------
+ 
+ # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+ # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Find out all the invoices from Edmonton, Vancouver and Toronto. */
 
 SELECT invoice_id, customer_id, billing_city, total 
@@ -243,7 +264,9 @@ FROm invoice
 WHERE billing_city IN ('Edmonton','Vancouver','Toronto');
 
 
-#--------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Find out the customer from each country that have spent most on the music?
   */
 
@@ -261,24 +284,61 @@ WHERE billing_city IN ('Edmonton','Vancouver','Toronto');
 SELECT * FROM most_spent_by_customer
  WHERE ranking <= 1;
  
-#-----------------------------------------------------------------------------------------------
+ 
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Write a query to find the most purchased track of each year?
 */
+
+#lets create a view that contains the joined data from tables track, invoice and invoice_line
+
+CREATE VIEW popular_track AS 
+(
 SELECT 
-track.name, 
-YEAR(invoice.invoice_date) as track_year,
-COUNT(invoice_line.invoice_line_id) AS no_of_times,
-RANK() OVER(PARTITION BY (YEAR(invoice.invoice_date)) )
-FROM track
-INNER JOIN invoice_line ON
-track.track_id  = invoice_line.track_id 
-INNER JOIN invoice ON
-invoice_line.invoice_id = invoice.invoice_id 
-GROUP BY track_year
-ORDER BY no_of_times DESC;
+		track.name AS track_name,
+        YEAR(invoice.invoice_date) AS track_year,
+        track.track_id,
+        invoice_line.invoice_line_id,
+        invoice.invoice_id
+FROM invoice
+INNER JOIN invoice_line ON 
+invoice.invoice_id = invoice_line.invoice_id
+INNER JOIN track ON 
+invoice_line.track_id = track.track_id
+);
+
+# lets see the data 
+SELECT * FROM popular_track;
+
+# lets create another view to simplify the things 
+CREATE VIEW popular_track_1 AS 
+(
+SELECT 
+		track_name,
+        track_year,
+		COUNT(*) AS number_of_times
+FROM popular_track
+GROUP BY track_name,track_year
+ORDER BY track_year, number_of_times DESC
+);
+
+# lets see the data stored in the view 
+SELECT * FROM popular_track_1;
 
 
-#---------------------------------------------------------------------------
+# lets find out the most popular track of each year by filtering the tracks with ranking = 1 for each year 
+WITH a AS (
+SELECT *, DENSE_RANK() OVER(PARTITION BY track_year ORDER BY number_of_times DESC) as ranking
+FROM popular_track_1)
+SELECT * FROM a 
+WHERE ranking = 1
+;
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Q: Write a query to find the most purchased track of 2017?
 
 # Lets see if we do have any data of year 2017 
@@ -305,7 +365,9 @@ LIMIT 1
 
 # So War Pigs is the track that was most popular in the year 2017 
 
-#---------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Write a query that shows top 5 most purchased track of all times */
 
 SELECT
@@ -319,8 +381,11 @@ ORDER BY no_of_times_purchased DESC
 LIMIT 5;
 
 # War Pigs, Highway Chile, Changes, Are you Experienced? and Hey Joe are top 5 tracks of all time 
-	
-#---------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q:Write a query to find the top 3 selling artists ?
 Lets find out the artists whose tracks have been purchased the most 
 */
@@ -340,7 +405,10 @@ ORDER BY no_of_times_purchased DESC
 LIMIT 3 
 ;
 
-#------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Write a query to show the number of customers assigned to each agent.
 */
 
@@ -352,7 +420,11 @@ INNER JOIN customer ON
 employee.employee_id = customer.support_rep_id
 GROUP BY sales_agent;
 
-#-------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Which sales agent made the most in each year ?
  */
  
@@ -374,7 +446,10 @@ FROM max_sales;
 
 # Jane Peacock is the most sucessfull sales agent with max sales.
 
-#------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Write a query to find the most purchased media type.
 */
 
@@ -407,7 +482,10 @@ SELECT media, MAX(no_of_times_purchased)
 		FROM most_media_type
 ;
 
-#------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /* Q: Write a query to find the type of the media not purchased */
 SELECT 
@@ -425,7 +503,9 @@ invoice_line.track_id = track.track_id
 # We have verified that there are not any types of media that was never purchased 
 
 
-#--------------------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Q: Write a query to find the number of invoices per country.
 */
 SELECT 
@@ -433,6 +513,11 @@ SELECT
         COUNT(invoice_id) AS no_of_invoices 
 FROM invoice 
 GROUP BY billing_country;
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
